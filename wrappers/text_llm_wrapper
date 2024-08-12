@@ -1,0 +1,32 @@
+import requests
+
+class TextLLMWrapper:
+    def __init__(self, signals, tts, llmState, modules=None):
+        self.signals = signals
+        self.tts = tts
+        self.llmState = llmState
+        self.LLM_ENDPOINT = "http://localhost:port"  # Set the endpoint to Ollama API
+        self.tokenizer = None  # Use appropriate tokenizer if needed
+
+    def prepare_payload(self):
+        return {
+            "prompt": self.generate_prompt(),
+            "max_tokens": 200,
+            "temperature": 0.7,
+        }
+
+    def generate_prompt(self):
+        # Implement prompt generation based on conversation history
+        pass
+
+    def prompt(self):
+        if not self.llmState.enabled:
+            return
+
+        data = self.prepare_payload()
+        response = requests.post(self.LLM_ENDPOINT + "/v1/chat/completions", json=data)
+        AI_message = response.json().get('text', '')
+        
+        if AI_message:
+            self.signals.history.append({"role": "assistant", "content": AI_message})
+            self.tts.play(AI_message)  # Send the response to TTS for playback
