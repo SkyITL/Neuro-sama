@@ -7,6 +7,8 @@ class TTS:
         self.Speechkey = '863f1e1615a644ab956e71c71facf573'
         self.SpeechRegion = 'eastasia'
         self.speech_config = speechsdk.SpeechConfig(subscription=self.Speechkey, region=self.SpeechRegion)
+
+        # Set the audio output to the VB-Audio Virtual Cable
         self.audio_config = speechsdk.audio.AudioOutputConfig(use_default_speaker=True)
         self.speech_config.speech_synthesis_voice_name = 'en-US-AshleyNeural'
         self.speech_synthesizer = speechsdk.SpeechSynthesizer(speech_config=self.speech_config, audio_config=self.audio_config)
@@ -31,3 +33,4 @@ class TTS:
                 if cancellation_details.error_details:
                     print("Error details: {}".format(cancellation_details.error_details))
                     print("Did you set the speech resource key and region values?")
+

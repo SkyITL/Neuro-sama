@@ -5,38 +5,41 @@ import signal
 import threading
 import time
 
-# Import your modules
-from neuro-sama.core.signals import Signals
-from stt import STT
-from tts import TTS
-from text_llm_wrapper import TextLLMWrapper
+# Ensure the project root directory is in the Python path
+project_root = os.path.dirname(os.path.abspath(__file__))
+if project_root not in sys.path:
+    sys.path.append(project_root)
 
-text_to_speak = "Hello, this is a test of the Azure TTS integration."
-tts.synthesize_speech(text_to_speak)
+# Import your modules
+from core.signals import Signals
+from core.tts import TTS
+from core.stt import STT
+from wrapper.text_llm_wrapper import TextLLMWrapper
+from core.llm_state import LLMState
 
 async def main():
     signals = Signals()
-    stt = STT(signals)
+    stt = STT(signals, model_name="medium.en")
     tts = TTS(signals)
     llmState = LLMState()
     llm = TextLLMWrapper(signals, tts, llmState)
 
-    def signal_handler(sig, frame):
-        signals.terminate = True
-        stt.API.shutdown()
 
-    signal.signal(signal.SIGINT, signal_handler)
-    signal.signal(signal.SIGTERM, signal_handler)
+    # Start a conversation loop
+    while True:
+        # Get user input
+        user_input = stt.stream_transcribe()
+        print(user_input)
 
-    stt_thread = threading.Thread(target=stt.listen_loop, daemon=True)
-    stt_thread.start()
+        if user_input.lower() in ["exit", "quit"]:
+            print("Exiting conversation.")
+            break
 
-    while not signals.terminate:
-        time.sleep(0.1)
-        if signals.new_message:
-            llm.prompt()
+        # Append user input to the conversation history
+        signals.history.append({"role": "Vedal", "content": user_input})
 
-    stt_thread.join()
+        # Generate response from the LLM
+        llm.prompt()
 
 if __name__ == '__main__':
     asyncio.run(main())
