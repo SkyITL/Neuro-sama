@@ -31,12 +31,12 @@ async def main():
         user_input = stt.stream_transcribe()
         print(user_input)
 
-        if user_input.lower() in ["exit", "quit"]:
-            print("Exiting conversation.")
-            break
+        #if user_input.lower() in ["exit", "quit"]:
+        #    print("Exiting conversation.")
+        #    break
 
         # Append user input to the conversation history
-        signals.history.append({"role": "Vedal", "content": user_input})
+        #signals.history.append({"role": "Vedal", "content": user_input})
 
         # Generate response from the LLM
         llm.prompt()
